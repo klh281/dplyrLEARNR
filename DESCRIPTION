@@ -1,11 +1,10 @@
 Package: dplyrLEARNR
 Type: Package
-Title: What the Package Does (Title Case)
+Title: A Practice Activity for Wranging Data with dplyr
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Allison Horst (updated by Kimberly Henry)
+Maintainer: The package maintainer <kim.henry@colostate.edu>
+Description: Practice your data wrangling skills with the penguins dataframe
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

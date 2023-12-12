@@ -54,7 +54,6 @@ In this tutorial, you'll learn and practice examples using some functions in `dp
 - `relocate()`: move columns around
 - `mutate()`: add a new column
 - `group_by()` + `summarize()`: get summary statistics by group
-- `across()`: apply a function across columns
 - `count()`: quickly find counts for different groups
 - `case_when()`: like friendly if-else
 
@@ -392,7 +391,7 @@ penguins %>%
 ```{r filter_q4-solution}
 penguins %>%
   filter(sex == "female",
-         species == "chinstrap") %>%
+         species == "Chinstrap") %>%
   filter(island %in% c("Dream","Torgersen"))
 ```
 
@@ -607,7 +606,7 @@ penguins %>%
 
 ```{r select_q2-solution}
 penguins %>%
-  select(bill_lenth_mm:body_mass_g, year)
+  select(bill_length_mm:body_mass_g, year)
 ```
 
 #### `r fa("fas fa-keyboard", fill = "purple")` Practice Activity 3
@@ -1262,205 +1261,7 @@ penguins %>%
   group_by(species) %>%
   summarize(bill_ratio_mean = mean(bill_ratio, na.rm = TRUE))
 ```
-
-## 9. dplyr::across()
-
-[CLICK HERE](https://dplyr.tidyverse.org/reference/across.html) for `across()` documentation from tidyverse.org.
-
-From [tidyverse.org](https://dplyr.tidyverse.org/reference/across.html), `dplyr::across()` "makes it easy to apply the same transformation to multiple columns."
-
-```{r, echo=FALSE, out.width="100%", fig.align = "center"}
-knitr::include_graphics("images/dplyr_across_where.jpeg")
-```
-
-The `across()` function is especially useful within `summarize()` to efficiently create summary tables with one or more functions applied to multiple variables (columns).
-
-Let's compare two ways of doing the same thing: creating a summary table of mean values for all penguin size measurements ending in "mm" (bill depth, bill length, flipper length), by species.
-
-As a reminder, here's a sample from the **penguins** data (5 observations / 344 total).
-
-```{r}
-penguins[c(3,31,199,220,304),] %>%
-  kable() %>%
-  kable_styling(full_width = F)
-```
-
-#### Approach 1: Using `group_by()` %>% `summarize()`
-
-```{r, echo = TRUE, warning = FALSE, message = FALSE, eval = FALSE}
-penguins %>%
-  group_by(species) %>%
-  summarize(bill_length_mean = mean(bill_length_mm, na.rm = TRUE),
-            bill_depth_mean = mean(bill_depth_mm, na.rm = TRUE),
-            flipper_length_mean = mean(flipper_length_mm, na.rm = TRUE))
-```
-
-#### Approach 2: Using `across()` within `summarize()`
-
-```{r, echo = TRUE, warning = FALSE, message = FALSE}
-penguins %>%
-  group_by(species) %>%
-  summarize(across(ends_with("mm"), mean, na.rm = TRUE))
-```
-
-The output is the same - but the second way (using `across()`) is much more efficient - and becomes even more useful as the number of columns you want to transform increases!
-
-The `across()` function also happily accepts most helper functions introduced for `select()`, including: `starts_with()`, `ends_with()`, `contains()`, as well as to specify classes (e.g. `is.numeric`, `is.character`, etc.). Follow along with the examples & exercises below to learn more!
-
-### ACROSS EXAMPLES
-
-#### `r fa("fas fa-robot", fill = "purple")` Example 1
-
-Starting with `penguins`, use `across()` within `group_by() %>% summarize()` to make a summary table containing the mean value of all columns from bill depth (bill_depth_mm) to body mass (body_mass_g), grouped by species and year.
-
-```{r, echo = TRUE, warning = FALSE, message = FALSE}
-penguins %>%
-  group_by(species, island) %>%
-  summarize(across(bill_depth_mm:body_mass_g, min, na.rm = TRUE))
-```
-
-#### `r fa("fas fa-robot", fill = "purple")` Example 2
-
-Starting with `penguins`, use `across()` within `group_by()` and `summarize()` to make a summary table containing the minimum values for bill length and body mass, grouped by penguin species.
-
-```{r, echo = TRUE, warning = FALSE, message = FALSE}
-penguins %>%
-  group_by(species) %>%
-  summarize(across(c(bill_length_mm, body_mass_g), min, na.rm = TRUE))
-```
-
-#### `r fa("fas fa-robot", fill = "purple")` Example 3
-
-Starting with `penguins`, use `across()` within `group_by()` and `summarize()` to make a summary table containing the maximum value within any column starting with "bill", grouped by `year`.
-
-```{r, echo = TRUE, warning = FALSE, message = FALSE}
-penguins %>%
-  group_by(year) %>%
-  summarize(across(starts_with("bill"), max, na.rm = TRUE))
-```
-
-Since what is presented in the table is the *maximum* value for bill length and depth, we probably want to update the column names. We could do that manually using `rename()`, or we can add the `.names = ` argument within `across()` as shown in the examples below.
-
-#### `r fa("fas fa-robot", fill = "purple")` Example 4
-
-Repeat the example above, but add an argument that will automatically update the column names containing the maximum bill length and depth to start with "max_" followed by the original column name.
-
-```{r, echo = TRUE, warning = FALSE, message = FALSE}
-penguins %>%
-  group_by(year) %>%
-  summarise(across(starts_with("bill"), max, na.rm = TRUE, .names = "max_{.col}"))
-```
-
-#### `r fa("fas fa-robot", fill = "purple")` Example 5
-
-Starting from `penguins`, create a summary table that finds the mean and standard deviation for all variables containing the string "length", grouped by penguin species. Update the column names to start with "avg_" or "sd_", followed by the original column names.
-
-There's quite a bit happening here, so a little breakdown:
-
-- We use `contains("length")` to indicate we'll apply the functions to any columns with the word "length" in the name
-- Within `list()` is where the functions to be applied across columns are given, and where their "names" of "avg" and "stdev" are set
-- We use `.names = ` to define the final column names in the summary table. Here, the name should start with the function "name" specified above ("avg" or "stdev"), then an underscore, then the original column name (that's what `"{.fn}_{.col}"` will do)
-
-```{r, echo = TRUE, warning = FALSE, message = FALSE}
-penguins %>%
-  group_by(species) %>%
-  summarize(across(contains("length"),
-                   list(avg = mean, stdev = sd),
-                   na.rm = TRUE,
-                   .names = "{.fn}_{.col}"))
-```
-
-<br>
-<br>
-<hr class="examples">
-
-### ACROSS PRACTICE ACTIVITIES
-
-#### `r fa("fas fa-keyboard", fill = "purple")` Practice Activity 1
-
-Starting with `penguins`, group data by island then use `across()` to find the median value of groups for any columns containing the string "mm". The names in the resulting table should be the original column name followed by an underscore, then the word "median" (e.g. colname_median).
-
-```{r across_q1, exercise = TRUE}
-
-```
-
-```{r across_q1-hint}
-penguins %>%
-  group_by(______) %>%
-  summarize(across(contains("______"),
-                   median,
-                   na.rm = TRUE,
-                   .names = "_______")
-            )
-```
-
-```{r across_q1-solution}
-penguins %>%
-  group_by(species) %>%
-  summarize(across(contains("mm"),
-                   median,
-                   na.rm = TRUE,
-                   .names = "{.col}_median")
-            )
-```
-
-#### `r fa("fas fa-keyboard", fill = "purple")` Practice Activity 2
-
-Starting with `penguins`, only keep observations for Adelie penguins, then use `across()` to find the maximum value for any numeric variable (hint: `where(is.numeric)`) for each island (i.e. group by island).
-
-```{r across_q2, exercise = TRUE}
-
-```
-
-```{r across_q2-hint}
-penguins %>%
-  filter(species == "______") %>%
-  group_by(______) %>%
-  summarize(across(where(_____), _____, na.rm = TRUE))
-```
-
-```{r across_q2-solution}
-penguins %>%
-  filter(species == "Adelie") %>%
-  group_by(island) %>%
-  summarize(across(where(is.numeric), max, na.rm = TRUE))
-```
-
-#### `r fa("fas fa-keyboard", fill = "purple")` Practice Activity 3
-
-Starting from `penguins`, write a piped sequence to:
-
-- Exclude penguins observed on Biscoe Island
-- Only keep variables `species` through `body_mass_g`
-- Rename the `species` variable to `spp_penguin`
-- Group the data by `spp_penguin`
-- Find the mean value for any variable containing the string "length", by penguin species, with column names updated to the original column name appended with "_max" at the end
-
-```{r across_q3, exercise = TRUE}
-
-```
-
-```{r across_q3-hint}
-penguins %>%
-  filter(island != "_____") %>%
-  select(_____:_____) %>%
-  rename(_____ = _____) %>%
-  group_by(_____) %>%
-  summarize(across(contains("_____"), mean, na.rm = TRUE, .names = "{.col}_avg"))
-```
-
-```{r across_q3-solution}
-penguins %>%
-  filter(island != "Biscoe") %>%
-  select(species:body_mass_g) %>%
-  rename(spp_penguin = species) %>%
-  group_by(spp_penguin) %>%
-  summarize(across(contains("length"), mean, na.rm = TRUE, .names = "{.col}_avg"))
-```
-
-
-
-## 10. dplyr::count()
+## 9. dplyr::count()
 
 [CLICK HERE](https://dplyr.tidyverse.org/reference/count.html) for `count()` documentation from tidyverse.org.
 
@@ -1557,7 +1358,7 @@ penguins %>%
   count(species, sex)
 ```
 
-## 11. dplyr::case_when()
+## 10. dplyr::case_when()
 
 [CLICK HERE](https://dplyr.tidyverse.org/reference/case_when.html) for `case_when()` documentation from tidyverse.org.
 
@@ -1678,4 +1479,3 @@ Want to learn more about `dplyr`, the `tidyverse`, or coding in R generally? Her
 
 - [R for Data Science](https://r4ds.had.co.nz/) by Hadley Wickham and Garrett Grolemund
 - [dplyr.tidyverse.org](https://dplyr.tidyverse.org/)
-

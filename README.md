@@ -1,2 +1,2 @@
 # dplyrLEARNR
-Hosted activities for PSY350 (forked from Allison's dplyr learnr tutorial)
+Hosted activities for PSY350 (forked from Allison Horst's dplyr learnr tutorial)

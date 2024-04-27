@@ -310,24 +310,24 @@ penguins %>%
 ### FILTER PRACTICE ACTIVITIES
 
 
-In the code chunks below, write your own code to practice with the `dplyr::filter()` function. If you get stuck, click on the "Hint" and "Solution" buttons.
+In the code chunks below, write your own code to practice with the `dplyr::filter()` function. If you get stuck, click on the "Hint" and/or "Solution" buttons.
 
 #### `r fa("fas fa-keyboard", fill = "purple")` Practice Activity 1
 
 Use `filter()` to create a subset from `penguins` that only contains gentoo penguins with a bill depth greater than or equal to 15.5 millimeters.
 
-```{r test_q1, exercise = TRUE}
+```{r filter_q1, exercise = TRUE}
 
 ```
 
-```{r test_q1-hint, warning = FALSE}
+```{r filter_q1-hint, warning = FALSE}
 penguins %>%
-  filter(species == "", bill_depth_mm > ___)
+  filter(species == "", bill_depth_mm >= ___)
 ```
 
 ```{r filter_q1-solution}
 penguins %>%
-  filter(species == "Gentoo", bill_depth_mm > 15.5)
+  filter(species == "Gentoo", bill_depth_mm >= 15.5)
 ```
 
 #### `r fa("fas fa-keyboard", fill = "purple")` Practice Activity 2
@@ -777,6 +777,7 @@ Starting with `penguins`, move the `species` variable to before the `sex` variab
 ```{r relocate_q1, exercise = TRUE}
 
 ```
+
 ```{r relocate_q1-solution}
 penguins %>%
   relocate(species, .before = sex)
@@ -789,7 +790,8 @@ Starting with `penguins`, relocate the `bill_length_mm` variable so that it is t
 ```{r relocate_q2, exercise = TRUE}
 
 ```
-```{r relocate_q-solution}
+
+```{r relocate_q2-solution}
 penguins %>%
   relocate(bill_length_mm)
 ```
